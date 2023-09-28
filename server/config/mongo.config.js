@@ -1,0 +1,32 @@
+const mongoose = require("mongoose");
+const config = require("./config");
+let countRetry = 0;
+exports.connectDatabase = async () => {
+    mongoose.Promise = global.Promise;
+    try {
+        await mongoose
+            .connect("mongodb://127.0.0.1:27017/chatt", {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+            })
+            .then(() => {
+                console.log("Connected to MongoDB successfully");
+            })
+            .catch((err) => {
+                console.error("Connection error", err);
+                process.exit();
+            });
+        countRetry = 0;
+    } catch (err) {
+        console.log(err);
+        countRetry += 1;
+        console.log(
+            `Could not connect to the mongo database. Retry times: ${countRetry}`
+        );
+        if (countRetry < 4) {
+            setTimeout(this.connectDatabase, 3000);
+        } else {
+            process.exit();
+        }
+    }
+};
